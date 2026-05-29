@@ -1,0 +1,53 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Dashboard Tổng Quan";
+}
+
+<div class="section-header">
+    <div>
+        <h1 class="section-title">Tổng Quan Hôm Nay</h1>
+        <p class="section-sub">Dữ liệu được cập nhật tự động mỗi 5 phút.</p>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon purple">👥</div>
+        <div class="stat-info">
+            <div class="stat-value">@Model.TotalCustomers</div>
+            <div class="stat-label">Tổng khách hàng</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon green">🧺</div>
+        <div class="stat-info">
+            <div class="stat-value">@Model.WashesToday</div>
+            <div class="stat-label">Lần giặt hôm nay</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon blue">📅</div>
+        <div class="stat-info">
+            <div class="stat-value">@Model.WashesThisMonth</div>
+            <div class="stat-label">Lần giặt tháng này</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon red">⚠️</div>
+        <div class="stat-info">
+            <div class="stat-value">@Model.ExhaustedCustomers</div>
+            <div class="stat-label">Khách hết hạn mức</div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="empty-state">
+        <div class="empty-icon">📈</div>
+        <p>Hệ thống tự động theo dõi số lần giặt qua khóa TTLock.<br/>Bạn có thể quản lý khách hàng và xem báo cáo ở menu bên trái.</p>
+    </div>
+</div>

@@ -1,0 +1,88 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Quản Lý Khách Hàng";
+}
+
+<div class="section-header">
+    <div>
+        <h1 class="section-title">Danh Sách Khách Hàng</h1>
+        <p class="section-sub">Quản lý khách thuê và phương thức mở khóa</p>
+    </div>
+    <a asp-page="Create" class="btn btn-primary">+ Thêm Khách Mới</a>
+</div>
+
+<div class="table-wrapper">
+    @if (Model.Customers.Count > 0)
+    {
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tên Khách</th>
+                    <th>Phòng</th>
+                    <th>Hạn Mức</th>
+                    <th>Trạng Thái</th>
+                    <th>Khóa Định Danh (Credentials)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Customers)
+                {
+                    <tr>
+                        <td>#@item.Id</td>
+                        <td style="font-weight: 500; color: #fff;">@item.Name</td>
+                        <td>@item.Room</td>
+                        <td>@item.QuotaPerMonth lần/tháng</td>
+                        <td>
+                            @if (item.Status == TTLockManager.Models.CustomerStatus.Active)
+                            {
+                                <span class="badge badge-green">Hoạt động</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-red">Đã khóa</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.Credentials.Any())
+                            {
+                                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                    @foreach (var cred in item.Credentials)
+                                    {
+                                        var badgeClass = cred.Type switch {
+                                            TTLockManager.Models.CredentialType.Card => "cred-card",
+                                            TTLockManager.Models.CredentialType.Fingerprint => "cred-fingerprint",
+                                            TTLockManager.Models.CredentialType.Pin => "cred-pin",
+                                            _ => "badge-gray"
+                                        };
+                                        var icon = cred.Type switch {
+                                            TTLockManager.Models.CredentialType.Card => "🃏",
+                                            TTLockManager.Models.CredentialType.Fingerprint => "👆",
+                                            TTLockManager.Models.CredentialType.Pin => "🔢",
+                                            _ => ""
+                                        };
+                                        <span class="cred-badge @badgeClass" title="@cred.Label">
+                                            @icon @cred.Type.ToString() @(cred.IsActiveOnLock ? "" : "(bị khóa)")
+                                        </span>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="badge badge-gray">Chưa cấp</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-icon">👥</div>
+            <p>Chưa có khách hàng nào trong hệ thống.</p>
+        </div>
+    }
+</div>

@@ -1,0 +1,79 @@
+@page
+@model CreateModel
+@{
+    ViewData["Title"] = "Thêm Khách Hàng";
+}
+
+<div class="section-header">
+    <div>
+        <h1 class="section-title">Thêm Khách Hàng Mới</h1>
+        <p class="section-sub">Điền thông tin và cấp phương thức mở khóa</p>
+    </div>
+    <a asp-page="Index" class="btn btn-ghost">Trở về</a>
+</div>
+
+<div class="card" style="max-width: 600px;">
+    <form method="post">
+        <div asp-validation-summary="ModelOnly" class="alert alert-error" style="color: var(--red);"></div>
+
+        <div class="form-group">
+            <label class="form-label">Tên khách hàng</label>
+            <input asp-for="Customer.Name" class="form-control" placeholder="VD: Nguyễn Văn A" required />
+            <span asp-validation-for="Customer.Name" style="color: var(--red); font-size: 0.8rem;"></span>
+        </div>
+
+        <div style="display: flex; gap: 16px;">
+            <div class="form-group" style="flex: 1;">
+                <label class="form-label">Số điện thoại</label>
+                <input asp-for="Customer.Phone" class="form-control" placeholder="VD: 0987654321" />
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label class="form-label">Số phòng</label>
+                <input asp-for="Customer.Room" class="form-control" placeholder="VD: P101" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Hạn mức (lần/tháng)</label>
+            <input asp-for="Customer.QuotaPerMonth" class="form-control" type="number" min="1" required />
+        </div>
+
+        <hr style="border: none; border-top: 1px solid var(--border); margin: 24px 0;" />
+        <h3 style="font-size: 1rem; margin-bottom: 16px;">Cấp phương thức mở khóa</h3>
+
+        <div class="form-group">
+            <label class="form-label">Loại xác thực</label>
+            <select asp-for="CredentialType" class="form-control" id="credType" onchange="togglePin()">
+                <option value="None">Chưa cấp (Thêm sau)</option>
+                <option value="Card">Thẻ Từ (Cần đặt thẻ lên khóa)</option>
+                <option value="Fingerprint">Vân Tay (Cần đặt vân tay lên khóa)</option>
+                <option value="Pin">Mã Số PIN</option>
+            </select>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">
+                Lưu ý: Thẻ từ và vân tay yêu cầu bạn phải đang đứng ở trước máy giặt để thực hiện thao tác.
+            </p>
+        </div>
+
+        <div class="form-group" id="pinGroup" style="display: none;">
+            <label class="form-label">Nhập mã PIN (4-9 số)</label>
+            <input asp-for="PinCode" class="form-control" type="number" placeholder="VD: 123456" />
+        </div>
+
+        <div style="margin-top: 32px;">
+            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px;">
+                Lưu Khách Hàng
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function togglePin() {
+            var type = document.getElementById("credType").value;
+            document.getElementById("pinGroup").style.display = type === "Pin" ? "block" : "none";
+        }
+        togglePin();
+    </script>
+}

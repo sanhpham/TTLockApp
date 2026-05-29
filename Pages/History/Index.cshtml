@@ -1,0 +1,82 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Lịch Sử Giặt";
+}
+
+<div class="section-header">
+    <div>
+        <h1 class="section-title">Lịch Sử Mở Khóa</h1>
+        <p class="section-sub">Tháng @Model.CurrentMonth/@Model.CurrentYear</p>
+    </div>
+    
+    <form method="get" style="display: flex; gap: 10px;">
+        <select name="month" class="form-control" style="width: auto;">
+            @for (int i = 1; i <= 12; i++)
+            {
+                <option value="@i" selected="@(i == Model.CurrentMonth)">Tháng @i</option>
+            }
+        </select>
+        <select name="year" class="form-control" style="width: auto;">
+            @for (int i = DateTime.Now.Year - 1; i <= DateTime.Now.Year + 1; i++)
+            {
+                <option value="@i" selected="@(i == Model.CurrentYear)">Năm @i</option>
+            }
+        </select>
+        <button type="submit" class="btn btn-ghost">Lọc</button>
+    </form>
+</div>
+
+<div class="table-wrapper">
+    @if (Model.Records.Count > 0)
+    {
+        <table>
+            <thead>
+                <tr>
+                    <th>Thời gian</th>
+                    <th>Khách hàng</th>
+                    <th>Phòng</th>
+                    <th>Phương thức</th>
+                    <th>ID Khóa / Mã</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Records)
+                {
+                    <tr>
+                        <td>@item.OpenedAt.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                        <td style="font-weight: 500; color: #fff;">@item.Customer.Name</td>
+                        <td>@item.Customer.Room</td>
+                        <td>
+                            @{
+                                var method = item.RecordType switch {
+                                    4 => "Mã PIN",
+                                    7 => "Thẻ Từ",
+                                    8 => "Vân Tay",
+                                    _ => $"Khác ({item.RecordType})"
+                                };
+                                var badgeClass = item.RecordType switch {
+                                    4 => "badge-yellow",
+                                    7 => "badge-blue",
+                                    8 => "badge-purple",
+                                    _ => "badge-gray"
+                                };
+                            }
+                            <span class="badge @badgeClass">@method</span>
+                        </td>
+                        <td style="font-family: monospace; color: var(--text-muted);">
+                            @item.KeyboardPwd
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <p>Không có lịch sử mở khóa nào trong tháng này.</p>
+        </div>
+    }
+</div>

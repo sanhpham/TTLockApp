@@ -1,0 +1,70 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Quản Lý Hạn Mức";
+}
+
+<div class="section-header">
+    <div>
+        <h1 class="section-title">Hạn Mức Tháng @DateTime.Now.Month/@DateTime.Now.Year</h1>
+        <p class="section-sub">Theo dõi và gia hạn thêm số lần giặt cho khách.</p>
+    </div>
+</div>
+
+<div class="table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <th>Khách hàng</th>
+                <th>Phòng</th>
+                <th>Đã Dùng / Tổng</th>
+                <th>Tình Trạng</th>
+                <th>Thao Tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                var percent = item.Usage.Quota == 0 ? 0 : (double)item.Usage.UsedCount / item.Usage.Quota * 100;
+                var barClass = percent >= 100 ? "danger" : (percent > 80 ? "warn" : "");
+                
+                <tr>
+                    <td style="font-weight: 500; color: #fff;">@item.Customer.Name</td>
+                    <td>@item.Customer.Room</td>
+                    <td style="width: 250px;">
+                        <div style="font-size: 0.8rem; margin-bottom: 4px; display: flex; justify-content: space-between;">
+                            <span>@item.Usage.UsedCount lần</span>
+                            <span>@item.Usage.Quota lần</span>
+                        </div>
+                        <div class="progress-wrap">
+                            <div class="progress">
+                                <div class="progress-bar @barClass" style="width: @(Math.Min(100, percent))%"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        @if (item.Usage.IsExhausted)
+                        {
+                            <span class="badge badge-red">Đã Hết (Bị Khóa)</span>
+                        }
+                        else if (percent > 80)
+                        {
+                            <span class="badge badge-yellow">Sắp Hết</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-green">Bình Thường</span>
+                        }
+                    </td>
+                    <td>
+                        <form method="post" asp-page-handler="Extend" style="display: flex; gap: 8px;">
+                            <input type="hidden" name="customerId" value="@item.Customer.Id" />
+                            <input type="number" name="addAmount" class="form-control" style="width: 70px; padding: 6px;" value="5" min="1" required />
+                            <button type="submit" class="btn btn-sm btn-primary">Gia hạn</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

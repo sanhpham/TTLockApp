@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Hệ thống quản lý giặt đồ thông minh tích hợp TTLock" />
+    <title>@ViewData["Title"] – WashManager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/app.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+
+<!-- ── Sidebar ──────────────────────────────────────────────────────── -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-icon">🧺</div>
+        <div class="brand-text">
+            <span class="brand-name">WashManager</span>
+            <span class="brand-sub">TTLock Integration</span>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <a asp-page="/Index" class="nav-item @(ViewData["ActivePage"]?.ToString() == "Dashboard" ? "active" : "")">
+            <span class="nav-icon">📊</span>
+            <span>Dashboard</span>
+        </a>
+        <a asp-page="/Customers/Index" class="nav-item @(ViewData["ActivePage"]?.ToString() == "Customers" ? "active" : "")">
+            <span class="nav-icon">👥</span>
+            <span>Khách Hàng</span>
+        </a>
+        <a asp-page="/History/Index" class="nav-item @(ViewData["ActivePage"]?.ToString() == "History" ? "active" : "")">
+            <span class="nav-icon">📋</span>
+            <span>Lịch Sử Giặt</span>
+        </a>
+        <a asp-page="/Quota/Index" class="nav-item @(ViewData["ActivePage"]?.ToString() == "Quota" ? "active" : "")">
+            <span class="nav-icon">🔢</span>
+            <span>Hạn Mức</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="status-dot online"></div>
+        <span>TTLock Online</span>
+    </div>
+</aside>
+
+<!-- ── Main content ──────────────────────────────────────────────────── -->
+<div class="main-wrapper">
+    <header class="topbar">
+        <button class="menu-toggle" id="menuToggle">☰</button>
+        <div class="topbar-title">@ViewData["Title"]</div>
+        <div class="topbar-right">
+            <span class="topbar-time" id="clock"></span>
+        </div>
+    </header>
+
+    <main class="content">
+        @RenderBody()
+    </main>
+</div>
+
+<script>
+    // Clock
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('clock').textContent =
+            now.toLocaleTimeString('vi-VN') + ' – ' + now.toLocaleDateString('vi-VN');
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Sidebar toggle
+    document.getElementById('menuToggle').addEventListener('click', () => {
+        document.getElementById('sidebar').classList.toggle('collapsed');
+        document.querySelector('.main-wrapper').classList.toggle('expanded');
+    });
+</script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
