@@ -1,0 +1,155 @@
+@page
+@model TTLockManager.Pages.Account.LoginModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng nhập – WashManager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+        body {
+            background: radial-gradient(circle at 10% 20%, rgb(18, 28, 51) 0%, rgb(8, 12, 21) 90%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            overflow: hidden;
+        }
+        .container {
+            position: relative;
+            width: 420px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            border: 1px rgba(255, 255, 255, 0.08) solid;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+        .logo-area {
+            margin-bottom: 30px;
+        }
+        .logo-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            display: inline-block;
+            animation: bounce 2s infinite ease-in-out;
+        }
+        .logo-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .logo-sub {
+            font-size: 0.85rem;
+            color: #8892b0;
+            margin-top: 5px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .form-label {
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+            display: block;
+            font-weight: 500;
+        }
+        .input-control {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px rgba(255, 255, 255, 0.1) solid;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        .input-control:focus {
+            outline: none;
+            border-color: #00f2fe;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+        }
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            border: none;
+            border-radius: 10px;
+            color: #0d1b2a;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 242, 254, 0.4);
+        }
+        .btn-login:active {
+            transform: translateY(0);
+        }
+        .error-message {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 10px;
+            padding: 12px;
+            color: #f87171;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        @@keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-area">
+            <div class="logo-icon">🧺</div>
+            <h1 class="logo-title">WashManager</h1>
+            <p class="logo-sub">Đăng Nhập Bằng Tài Khoản TTLock</p>
+        </div>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="error-message">
+                <div asp-validation-summary="All"></div>
+            </div>
+        }
+
+        <form method="post" asp-route-returnUrl="@Model.ReturnUrl">
+            @Html.AntiForgeryToken()
+            <div class="form-group">
+                <label asp-for="Username" class="form-label"></label>
+                <input asp-for="Username" class="input-control" placeholder="Email hoặc Số điện thoại TTLock" autocomplete="username" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" class="input-control" type="password" placeholder="Mật khẩu tài khoản TTLock" autocomplete="current-password" />
+            </div>
+            <button type="submit" class="btn-login">Đăng Nhập</button>
+        </form>
+    </div>
+</body>
+</html>

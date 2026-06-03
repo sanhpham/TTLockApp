@@ -41,6 +41,23 @@ namespace TTLockManager.Services
         public string keyboardPwdId { get; set; } = string.Empty;
     }
 
+    public class TTLockLockListResponse
+    {
+        public int errcode { get; set; }
+        public string errmsg { get; set; } = string.Empty;
+        public List<TTLockLockItem> list { get; set; } = new();
+        public int pageNo { get; set; }
+        public int pageSize { get; set; }
+        public int total { get; set; }
+    }
+
+    public class TTLockLockItem
+    {
+        public long lockId { get; set; }
+        public string lockName { get; set; } = string.Empty;
+        public string lockAlias { get; set; } = string.Empty;
+    }
+
     public class TTLockRecordListResponse
     {
         public int errcode { get; set; }
@@ -59,19 +76,26 @@ namespace TTLockManager.Services
         Task<bool> AuthenticateAsync();
         Task<bool> RefreshTokenAsync();
 
+        // Multi-user Auth
+        Task<TTLockTokenResponse> AuthenticateUserAsync(string username, string password);
+        Task<TTLockTokenResponse> RefreshUserTokenAsync(string refreshToken);
+
+        // Lock list
+        Task<TTLockLockListResponse> GetLockListAsync(string accessToken, int pageNo = 1, int pageSize = 100);
+
         // IC Card
-        Task<TTLockAddCardResponse> AddCardAsync(long lockId, string cardName, long startDate, long endDate);
-        Task<TTLockBaseResponse> DeleteCardAsync(long lockId, string cardId);
+        Task<TTLockAddCardResponse> AddCardAsync(long lockId, string cardName, long startDate, long endDate, string? accessToken = null);
+        Task<TTLockBaseResponse> DeleteCardAsync(long lockId, string cardId, string? accessToken = null);
 
         // Fingerprint
-        Task<TTLockAddFingerprintResponse> AddFingerprintAsync(long lockId, string name, long startDate, long endDate);
-        Task<TTLockBaseResponse> DeleteFingerprintAsync(long lockId, string fingerprintId);
+        Task<TTLockAddFingerprintResponse> AddFingerprintAsync(long lockId, string name, long startDate, long endDate, string? accessToken = null);
+        Task<TTLockBaseResponse> DeleteFingerprintAsync(long lockId, string fingerprintId, string? accessToken = null);
 
         // Passcode (PIN)
-        Task<TTLockAddPasscodeResponse> AddPasscodeAsync(long lockId, string passcode, string name, long startDate, long endDate);
-        Task<TTLockBaseResponse> DeletePasscodeAsync(long lockId, string keyboardPwdId);
+        Task<TTLockAddPasscodeResponse> AddPasscodeAsync(long lockId, string passcode, string name, long startDate, long endDate, string? accessToken = null);
+        Task<TTLockBaseResponse> DeletePasscodeAsync(long lockId, string keyboardPwdId, string? accessToken = null);
 
         // Records
-        Task<TTLockRecordListResponse> GetLockRecordsAsync(long lockId, long startDate, long endDate, int pageNo = 1, int pageSize = 100);
+        Task<TTLockRecordListResponse> GetLockRecordsAsync(long lockId, long startDate, long endDate, int pageNo = 1, int pageSize = 100, string? accessToken = null);
     }
 }

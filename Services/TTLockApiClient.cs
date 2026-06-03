@@ -52,6 +52,13 @@ namespace TTLockManager.Services
             return JsonConvert.DeserializeObject<T>(json)!;
         }
 
+        private async Task<string> ResolveTokenAsync(string? providedToken)
+        {
+            if (!string.IsNullOrEmpty(providedToken)) return providedToken;
+            await EnsureTokenAsync();
+            return _accessToken;
+        }
+
         // ── Auth ───────────────────────────────────────────────────────────
 
         public async Task<bool> AuthenticateAsync()
@@ -107,15 +114,60 @@ namespace TTLockManager.Services
             return await AuthenticateAsync();
         }
 
+        // ── Multi-user Auth ────────────────────────────────────────────────
+
+        public async Task<TTLockTokenResponse> AuthenticateUserAsync(string username, string password)
+        {
+            var clientId = _config["TTLock:ClientId"]!;
+            var clientSecret = _config["TTLock:ClientSecret"]!;
+            var hashedPassword = Md5(password);
+
+            return await PostAsync<TTLockTokenResponse>("/oauth2/token", new()
+            {
+                ["client_id"] = clientId,
+                ["client_secret"] = clientSecret,
+                ["username"] = username,
+                ["password"] = hashedPassword
+            });
+        }
+
+        public async Task<TTLockTokenResponse> RefreshUserTokenAsync(string refreshToken)
+        {
+            var clientId = _config["TTLock:ClientId"]!;
+            var clientSecret = _config["TTLock:ClientSecret"]!;
+
+            return await PostAsync<TTLockTokenResponse>("/oauth2/token", new()
+            {
+                ["client_id"] = clientId,
+                ["client_secret"] = clientSecret,
+                ["grant_type"] = "refresh_token",
+                ["refresh_token"] = refreshToken
+            });
+        }
+
+        // ── Lock list ──────────────────────────────────────────────────────
+
+        public async Task<TTLockLockListResponse> GetLockListAsync(string accessToken, int pageNo = 1, int pageSize = 100)
+        {
+            return await PostAsync<TTLockLockListResponse>("/v3/lock/list", new()
+            {
+                ["clientId"] = _config["TTLock:ClientId"]!,
+                ["accessToken"] = accessToken,
+                ["pageNo"] = pageNo.ToString(),
+                ["pageSize"] = pageSize.ToString(),
+                ["date"] = NowMs().ToString()
+            });
+        }
+
         // ── IC Card ────────────────────────────────────────────────────────
 
-        public async Task<TTLockAddCardResponse> AddCardAsync(long lockId, string cardName, long startDate, long endDate)
+        public async Task<TTLockAddCardResponse> AddCardAsync(long lockId, string cardName, long startDate, long endDate, string? accessToken = null)
         {
-            await EnsureTokenAsync();
+            var token = await ResolveTokenAsync(accessToken);
             return await PostAsync<TTLockAddCardResponse>("/v3/iccard/add", new()
             {
                 ["clientId"] = _config["TTLock:ClientId"]!,
-                ["accessToken"] = _accessToken,
+                ["accessToken"] = token,
                 ["lockId"] = lockId.ToString(),
                 ["cardName"] = cardName,
                 ["startDate"] = startDate.ToString(),
@@ -124,13 +176,13 @@ namespace TTLockManager.Services
             });
         }
 
-        public async Task<TTLockBaseResponse> DeleteCardAsync(long lockId, string cardId)
+        public async Task<TTLockBaseResponse> DeleteCardAsync(long lockId, string cardId, string? accessToken = null)
         {
-            await EnsureTokenAsync();
+            var token = await ResolveTokenAsync(accessToken);
             return await PostAsync<TTLockBaseResponse>("/v3/iccard/delete", new()
             {
                 ["clientId"] = _config["TTLock:ClientId"]!,
-                ["accessToken"] = _accessToken,
+                ["accessToken"] = token,
                 ["lockId"] = lockId.ToString(),
                 ["cardId"] = cardId,
                 ["date"] = NowMs().ToString()
@@ -139,13 +191,13 @@ namespace TTLockManager.Services
       
         // ── Fingerprint ────────────────────────────────────────────────────
 
-        public async Task<TTLockAddFingerprintResponse> AddFingerprintAsync(long lockId, string name, long startDate, long endDate)
+        public async Task<TTLockAddFingerprintResponse> AddFingerprintAsync(long lockId, string name, long startDate, long endDate, string? accessToken = null)
         {
-            await EnsureTokenAsync();
+            var token = await ResolveTokenAsync(accessToken);
             return await PostAsync<TTLockAddFingerprintResponse>("/v3/fingerprint/add", new()
             {
                 ["clientId"] = _config["TTLock:ClientId"]!,
-                ["accessToken"] = _accessToken,
+                ["accessToken"] = token,
                 ["lockId"] = lockId.ToString(),
                 ["fingerprintName"] = name,
                 ["startDate"] = startDate.ToString(),
@@ -154,13 +206,13 @@ namespace TTLockManager.Services
             });
         }
 
-        public async Task<TTLockBaseResponse> DeleteFingerprintAsync(long lockId, string fingerprintId)
+        public async Task<TTLockBaseResponse> DeleteFingerprintAsync(long lockId, string fingerprintId, string? accessToken = null)
         {
-            await EnsureTokenAsync();
+            var token = await ResolveTokenAsync(accessToken);
             return await PostAsync<TTLockBaseResponse>("/v3/fingerprint/delete", new()
             {
                 ["clientId"] = _config["TTLock:ClientId"]!,
-                ["accessToken"] = _accessToken,
+                ["accessToken"] = token,
                 ["lockId"] = lockId.ToString(),
                 ["fingerprintId"] = fingerprintId,
                 ["date"] = NowMs().ToString()
@@ -168,34 +220,32 @@ namespace TTLockManager.Services
         }
 
         // ── Passcode (PIN) ─────────────────────────────────────────────────
-
-        // ── Passcode (PIN) ─────────────────────────────────────────────────
-        public async Task<TTLockAddPasscodeResponse> AddPasscodeAsync(long lockId, string passcode, string name, long startDate, long endDate)
+        public async Task<TTLockAddPasscodeResponse> AddPasscodeAsync(long lockId, string passcode, string name, long startDate, long endDate, string? accessToken = null)
         {
-            await EnsureTokenAsync();
+            var token = await ResolveTokenAsync(accessToken);
             // TTLock sử dụng endpoint /v3/keyboardPwd/add cho việc tạo Passcode (PIN)
             // Thêm tham số addType = 2 để gửi lệnh qua Gateway (remote)
             return await PostAsync<TTLockAddPasscodeResponse>("/v3/keyboardPwd/add", new()
             {
                 ["clientId"]        = _config["TTLock:ClientId"]!,
-                ["accessToken"]     = _accessToken,
+                ["accessToken"]     = token,
                 ["lockId"]          = lockId.ToString(),
                 ["keyboardPwd"]     = passcode,
                 ["keyboardPwdName"] = name,
                 ["startDate"]       = startDate.ToString(),
                 ["endDate"]         = endDate.ToString(),
-                ["addType"]         = "2",
+                ["addType"]         = "1",
                 ["date"]            = NowMs().ToString()
             });
         }
 
-        public async Task<TTLockBaseResponse> DeletePasscodeAsync(long lockId, string keyboardPwdId)
+        public async Task<TTLockBaseResponse> DeletePasscodeAsync(long lockId, string keyboardPwdId, string? accessToken = null)
         {
-            await EnsureTokenAsync();
+            var token = await ResolveTokenAsync(accessToken);
             return await PostAsync<TTLockBaseResponse>("/v3/passcode/delete", new()
             {
                 ["clientId"] = _config["TTLock:ClientId"]!,
-                ["accessToken"] = _accessToken,
+                ["accessToken"] = token,
                 ["lockId"] = lockId.ToString(),
                 ["keyboardPwdId"] = keyboardPwdId,
                 ["date"] = NowMs().ToString()
@@ -204,13 +254,13 @@ namespace TTLockManager.Services
 
         // ── Records ────────────────────────────────────────────────────────
 
-        public async Task<TTLockRecordListResponse> GetLockRecordsAsync(long lockId, long startDate, long endDate, int pageNo = 1, int pageSize = 100)
+        public async Task<TTLockRecordListResponse> GetLockRecordsAsync(long lockId, long startDate, long endDate, int pageNo = 1, int pageSize = 100, string? accessToken = null)
         {
-            await EnsureTokenAsync();
+            var token = await ResolveTokenAsync(accessToken);
             return await PostAsync<TTLockRecordListResponse>("/v3/lockRecord/list", new()
             {
                 ["clientId"] = _config["TTLock:ClientId"]!,
-                ["accessToken"] = _accessToken,
+                ["accessToken"] = token,
                 ["lockId"] = lockId.ToString(),
                 ["startDate"] = startDate.ToString(),
                 ["endDate"] = endDate.ToString(),

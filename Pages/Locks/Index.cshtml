@@ -1,0 +1,68 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Quản Lý Ổ Khóa";
+}
+
+<div class="section-header">
+    <div>
+        <h1 class="section-title">Danh Sách Ổ Khóa</h1>
+        <p class="section-sub">Quản lý và đồng bộ danh sách ổ khóa từ tài khoản TTLock của bạn</p>
+    </div>
+    <form method="post" asp-page-handler="Sync">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-primary" style="display: flex; align-items: center; gap: 8px;">
+            <span>🔄</span> Đồng bộ từ TTLock
+        </button>
+    </form>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px; padding: 16px; color: #10b981; margin-bottom: 24px;">
+        @Model.SuccessMessage
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 10px; padding: 16px; color: #ef4444; margin-bottom: 24px;">
+        @Model.ErrorMessage
+    </div>
+}
+
+<div class="table-wrapper">
+    @if (Model.DeviceLocks.Count > 0)
+    {
+        <table>
+            <thead>
+                <tr>
+                    <th>ID Hệ thống</th>
+                    <th>Lock ID (TTLock)</th>
+                    <th>Tên Ổ Khóa</th>
+                    <th>Bí danh (Alias)</th>
+                    <th>Cập nhật cuối</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.DeviceLocks)
+                {
+                    <tr>
+                        <td>#@item.Id</td>
+                        <td style="font-family: monospace; color: #8892b0;">@item.LockId</td>
+                        <td style="font-weight: 500; color: #fff;">@item.LockName</td>
+                        <td>@item.LockAlias</td>
+                        <td>@item.SyncedAt.ToString("g")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-icon">🔒</div>
+            <p>Chưa có ổ khóa nào được đồng bộ. Hãy bấm nút <strong>Đồng bộ từ TTLock</strong> ở trên để tải về danh sách khóa của bạn.</p>
+        </div>
+    }
+</div>

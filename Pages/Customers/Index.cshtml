@@ -21,6 +21,7 @@
                     <th>ID</th>
                     <th>Tên Khách</th>
                     <th>Phòng</th>
+                    <th>Ổ Khóa</th>
                     <th>Hạn Mức</th>
                     <th>Trạng Thái</th>
                     <th>Khóa Định Danh (Credentials)</th>
@@ -33,6 +34,13 @@
                         <td>#@item.Id</td>
                         <td style="font-weight: 500; color: #fff;">@item.Name</td>
                         <td>@item.Room</td>
+                        <td>
+                            @{
+                                var lockItem = Model.DeviceLocks.FirstOrDefault(l => l.LockId == item.LockId);
+                                var displayName = lockItem != null ? $"{lockItem.LockName} ({lockItem.LockAlias})" : "Chưa gán";
+                            }
+                            <span style="font-size: 0.9rem; font-weight: 500; color: #00f2fe;">@displayName</span>
+                        </td>
                         <td>@item.QuotaPerMonth lần/tháng</td>
                         <td>
                             @if (item.Status == TTLockManager.Models.CustomerStatus.Active)

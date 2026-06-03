@@ -11,6 +11,8 @@ namespace TTLockManager.Data
         public DbSet<CustomerCredential> CustomerCredentials { get; set; }
         public DbSet<WashRecord> WashRecords { get; set; }
         public DbSet<MonthlyUsage> MonthlyUsages { get; set; }
+        public DbSet<AppUser> AppUsers { get; set; }
+        public DbSet<DeviceLock> DeviceLocks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

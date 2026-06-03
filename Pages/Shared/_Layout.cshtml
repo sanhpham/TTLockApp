@@ -31,6 +31,10 @@
             <span class="nav-icon">👥</span>
             <span>Khách Hàng</span>
         </a>
+        <a asp-page="/Locks/Index" class="nav-item @(ViewData["ActivePage"]?.ToString() == "Locks" ? "active" : "")">
+            <span class="nav-icon">🔒</span>
+            <span>Ổ Khóa</span>
+        </a>
         <a asp-page="/History/Index" class="nav-item @(ViewData["ActivePage"]?.ToString() == "History" ? "active" : "")">
             <span class="nav-icon">📋</span>
             <span>Lịch Sử Giặt</span>
@@ -41,9 +45,23 @@
         </a>
     </nav>
 
-    <div class="sidebar-footer">
-        <div class="status-dot online"></div>
-        <span>TTLock Online</span>
+    <div class="sidebar-footer" style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start; padding: 15px 20px;">
+        @if (Context.User.Identity?.IsAuthenticated == true)
+        {
+            <div style="display: flex; align-items: center; gap: 8px; width: 100%; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; margin-bottom: 4px;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #0d1b2a;">
+                    @(Context.User.Identity.Name?[0].ToString().ToUpper() ?? "?")
+                </div>
+                <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;">
+                    <div style="font-weight: 500; font-size: 0.9rem; color: #fff;">@Context.User.Identity.Name</div>
+                    <a asp-page="/Account/Logout" style="font-size: 0.8rem; color: #f87171; text-decoration: none;">Đăng xuất ↗</a>
+                </div>
+            </div>
+        }
+        <div style="display: flex; align-items: center; gap: 8px; margin-top: 5px;">
+            <div class="status-dot online"></div>
+            <span style="font-size: 0.85rem; color: #8892b0;">TTLock Online</span>
+        </div>
     </div>
 </aside>
 

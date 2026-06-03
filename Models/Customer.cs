@@ -1,4 +1,7 @@
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TTLockManager.Models
 {
@@ -21,6 +24,12 @@ namespace TTLockManager.Models
         public CustomerStatus Status { get; set; } = CustomerStatus.Active;
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        [ForeignKey(nameof(AppUser))]
+        public int AppUserId { get; set; }
+        public AppUser? AppUser { get; set; }
+
+        public long? LockId { get; set; } // ID ổ khóa đang sử dụng
 
         // Navigation
         public ICollection<CustomerCredential> Credentials { get; set; } = new List<CustomerCredential>();
