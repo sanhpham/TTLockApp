@@ -47,9 +47,9 @@ jobs:
           Set-Content -Path appsettings.json -Value $json -Encoding UTF8
           Write-Host "appsettings.json đã được ghi với thông tin production."
 
-      # 5. Build & Publish (Self-contained win-x86 - tương thích SmarterASP.NET 32-bit Pool)
+      # 5. Build & Publish (Self-contained win-x64 - tương thích SmarterASP.NET 64-bit Pool)
       - name: Publish app
-        run: dotnet publish -c Release -r win-x86 --self-contained true -o ./publish
+        run: dotnet publish -c Release -r win-x64 --self-contained true -o ./publish
 
       # 6. Deploy lên SmarterASP.NET qua Web Deploy
       - name: Deploy to SmarterASP.NET
