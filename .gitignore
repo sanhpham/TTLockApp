@@ -1,3 +1,17 @@
+# Build outputs
 .vs/
 bin/
 obj/
+publish/
+
+# SQLite local database (không cần đưa lên GitHub)
+*.db
+*.db-shm
+*.db-wal
+
+# Local user settings
+*.user
+appsettings.Development.json
+
+# Secrets (nếu có file riêng)
+appsettings.secrets.json

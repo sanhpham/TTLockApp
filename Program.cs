@@ -13,9 +13,25 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AllowAnonymousToPage("/Account/Login");
 });
 
-// Database SQLite
+// Database Configuration
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    if (connectionString != null && (
+        connectionString.Contains("Server=") || 
+        connectionString.Contains("Database=") || 
+        connectionString.Contains("Initial Catalog=") || 
+        connectionString.Contains("User Id=") || 
+        connectionString.Contains("Password=")))
+    {
+        options.UseSqlServer(connectionString);
+    }
+    else
+    {
+        options.UseSqlite(connectionString ?? "Data Source=ttlock_manager.db");
+    }
+});
 
 // TTLock API Client (Singleton để dùng chung token)
 builder.Services.AddHttpClient<ITTLockApiClient, TTLockApiClient>();

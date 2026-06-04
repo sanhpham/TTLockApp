@@ -234,7 +234,7 @@ namespace TTLockManager.Services
                 ["keyboardPwdName"] = name,
                 ["startDate"]       = startDate.ToString(),
                 ["endDate"]         = endDate.ToString(),
-                ["addType"]         = "1",
+                ["addType"]         = "2",
                 ["date"]            = NowMs().ToString()
             });
         }

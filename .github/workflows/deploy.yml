@@ -1,0 +1,65 @@
+name: Build and Deploy to SmarterASP.NET
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build_and_deploy:
+    runs-on: windows-latest
+
+    steps:
+      # 1. Checkout source code
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      # 2. Setup .NET 10 SDK
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      # 3. Restore NuGet packages
+      - name: Restore dependencies
+        run: dotnet restore
+
+      # 4. Inject production appsettings từ GitHub Secrets
+      - name: Write production appsettings.json
+        shell: pwsh
+        run: |
+          $json = @{
+            Logging = @{
+              LogLevel = @{
+                Default = "Warning"
+                "Microsoft.AspNetCore" = "Warning"
+              }
+            }
+            AllowedHosts = "*"
+            ConnectionStrings = @{
+              DefaultConnection = "${{ secrets.DB_CONNECTION_STRING }}"
+            }
+            TTLock = @{
+              ClientId     = "${{ secrets.TTLOCK_CLIENT_ID }}"
+              ClientSecret = "${{ secrets.TTLOCK_CLIENT_SECRET }}"
+              Username     = "${{ secrets.TTLOCK_USERNAME }}"
+              Password     = "${{ secrets.TTLOCK_PASSWORD }}"
+              LockId       = "${{ secrets.TTLOCK_LOCK_ID }}"
+            }
+          } | ConvertTo-Json -Depth 5
+          Set-Content -Path appsettings.json -Value $json -Encoding UTF8
+          Write-Host "appsettings.json đã được ghi với thông tin production."
+
+      # 5. Build & Publish (Self-contained win-x86 - tương thích SmarterASP.NET 32-bit Pool)
+      - name: Publish app
+        run: dotnet publish -c Release -r win-x86 --self-contained true -o ./publish
+
+      # 6. Deploy lên SmarterASP.NET qua Web Deploy
+      - name: Deploy to SmarterASP.NET
+        uses: jahbenjah/SmarterASP.NET-web-deploy@1.0.0
+        with:
+          website-name: ${{ secrets.SMARTERASP_SITE_NAME }}
+          server-computer-name: ${{ secrets.SMARTERASP_SERVER }}
+          server-username: ${{ secrets.SMARTERASP_USERNAME }}
+          server-password: ${{ secrets.SMARTERASP_PASSWORD }}
+          source-path: 'publish\'
