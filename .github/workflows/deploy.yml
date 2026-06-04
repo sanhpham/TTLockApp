@@ -42,9 +42,6 @@ jobs:
             TTLock = @{
               ClientId     = "${{ secrets.TTLOCK_CLIENT_ID }}"
               ClientSecret = "${{ secrets.TTLOCK_CLIENT_SECRET }}"
-              Username     = "${{ secrets.TTLOCK_USERNAME }}"
-              Password     = "${{ secrets.TTLOCK_PASSWORD }}"
-              LockId       = "${{ secrets.TTLOCK_LOCK_ID }}"
             }
           } | ConvertTo-Json -Depth 5
           Set-Content -Path appsettings.json -Value $json -Encoding UTF8
