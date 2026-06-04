@@ -47,9 +47,9 @@ jobs:
           Set-Content -Path appsettings.json -Value $json -Encoding UTF8
           Write-Host "appsettings.json written successfully."
 
-      # 5. Build & Publish (Self-contained win-x64)
+      # 5. Build & Publish (Framework-dependent, Portable - server cần cài .NET runtime)
       - name: Publish app
-        run: dotnet publish -c Release -r win-x64 --self-contained true -o ./publish
+        run: dotnet publish -c Release --no-self-contained -o ./publish
 
       # 6. Deploy lên SmarterASP.NET qua FTP
       - name: Deploy via FTP
